@@ -1,0 +1,12 @@
+---
+  - name: Playbook for deleting user along with files in the user's home directory
+    hosts: all
+    become: true
+    vars_files:
+      - /opt/ansible_repo/vars/user.yml
+    tasks:
+      - name: Deleting user {{ user }}
+        user:
+          name: "{{ user }}"
+          state: absent
+          remove: yes

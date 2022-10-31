@@ -1,0 +1,20 @@
+---
+  - name: Playbook to create file or directory
+    hosts: all
+    become: true
+# Don't collect system information (gather_facts) about the target sytems as it's not required for the task
+#   gather_facts: no
+    tasks:
+      - name: Creating a file
+        file:
+          path: /home/ansadmin/test_file
+          state: touch
+          owner: ansadmin
+          group: ansadmin
+
+      - name: Creating a directory
+        file:
+          path: /home/ansadmin/test_dir
+          state: directory
+          owner: ansadmin 
+          group: ansadmin

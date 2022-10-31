@@ -1,0 +1,38 @@
+---
+  - name: Setup Tomcat
+    hosts: all
+    become: true
+    tasks:
+      - name: Install java on CentOS
+        yum: 
+          name: java
+          state: present
+        when: ansible_os_family == "RedHat"
+
+      - name: Install java on Ubuntu
+        apt:
+          name: default-jdk
+          state: present
+        when: ansible_os_family == "Debian"
+
+      - name: Download tomcat package
+        get_url:
+          url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.83/bin/apache-tomcat-8.5.83.tar.gz
+          dest: /opt
+          
+      - name: Untar the tomcat packages
+        unarchive:
+          src: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.83/bin/apache-tomcat-8.5.83.tar.gz
+          dest: /opt
+          remote_src: yes
+
+      - name: Add execution permission to startup.sh file
+        file:
+          path: /opt/apache-tomcat-8.5.83/bin/startup.sh
+          mode: 0777
+
+      - name: Execute startup.sh to start tomcat services
+        shell: nohup ./startup.sh                         # Add >> /tmp/tomcat.log to save the shell output to a file
+        args: 
+          chdir: /opt/apache-tomcat-8.5.83/bin
+        tags: start_tomcat                                # Tag is added to call the shell module independently without executing complete playbook

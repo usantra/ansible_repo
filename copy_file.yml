@@ -1,0 +1,11 @@
+---
+  - name: Ansible playbook to copy a file
+    hosts: all
+    become: true
+    tasks:
+      - name: copy index.html file
+        copy:
+          src: /opt/ansible_repo/index.html
+          dest: /home/ansadmin
+          mode: 0600
+          owner: ansadmin

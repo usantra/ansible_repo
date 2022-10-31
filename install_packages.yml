@@ -1,0 +1,11 @@
+---
+  - name: Playbook for installing packages
+    hosts: appserver
+    become: true
+    tasks:
+      - name: Installing telnet & wget in a single task
+        yum:
+          name: ['telnet', 'wget']
+          state: latest
+          update_cache: true
+        when: ansible_os_family == "RedHat"
