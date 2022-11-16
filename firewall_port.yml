@@ -1,0 +1,23 @@
+---
+  - name: Close Service/Port on firewall
+    hosts: all
+    become: true
+    vars_files:
+      - /opt/ansible_repo/vars/portnmbr.yml
+    tasks:
+      - name: Open port {{ port }} on CentOS VM
+        firewalld:
+          port: "{{ port }}/tcp"
+          permanent: yes
+          state: disabled
+          immediate: yes                   # Reload firewalld service to open the port
+        when: ansible_os_family == "RedHat"
+
+      - name: Open port {{ port }} on Ubuntu VM
+        ufw:
+          port: "{{ port }}"
+          rule: deny
+          proto: tcp
+        when: ansible_os_family == "Debian"
+
+# Execute with -e "portnmbr=<port/protocol>" to pass on the variable

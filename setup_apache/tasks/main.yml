@@ -1,0 +1,54 @@
+---
+# tasks file for setup_apache
+- name: Install httpd on CentOS VM
+  yum:
+    name: httpd
+    state: present
+  when: ansible_os_family  == "RedHat"
+  notify: Start httpd service
+
+- name: Install apache2 on Ubuntu VM
+  apt:
+    name: apache2
+    state: present
+  when: ansible_os_family == "Debian"
+  notify: Start apache2 service
+
+- name: Ensure the default Apache port is {{ port }} on CentOS
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^Listen '
+    insertafter: '^#Listen '
+    line: Listen {{ port }}
+  when: ansible_os_family  == "RedHat"
+  notify: Restart httpd service
+
+- name: Ensure the default Apache port is {{ port }} on Ubuntu
+  lineinfile:
+    path: /etc/apache2/ports.conf
+    regexp: '^Listen '
+    insertafter: '# /etc/apache2/sites-enabled/000-default.conf'
+    line: Listen {{ port }}
+  when: ansible_os_family  == "Debian"
+  notify: Restart apache2 service
+
+- name: Open port {{ port }} on CentOS
+  firewalld:
+    port: '{{ port }}/tcp'
+    permanent: yes
+    state: enabled
+    immediate: yes                                # Reload firewalld service to open the port
+  when: ansible_os_family == "RedHat"
+
+- name: Open port {{ port }} on Ubuntu
+  ufw:
+    port: "{{ port }}"
+    rule: allow
+    proto: tcp
+  when: ansible_os_family == "Debian"
+
+- name: Copy index.html file
+  copy:
+    src: /opt/ansible_repo/vars/index.html
+    dest: /var/www/html
+    mode: 0666
